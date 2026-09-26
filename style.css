@@ -1,0 +1,1931 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e8f5ff, #dff7ed);
+    color: #17202a;
+}
+
+/* FEJLÉC */
+
+header {
+    text-align: center;
+    padding: 30px 20px 20px;
+}
+
+header h1 {
+    font-size: clamp(42px, 7vw, 76px);
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+header p {
+    margin-top: 8px;
+    font-size: clamp(18px, 3vw, 28px);
+    color: #52616b;
+}
+
+/* FŐ TERÜLET */
+
+main {
+    width: min(1100px, 94%);
+    margin: 0 auto 40px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+/* KÁRTYÁK */
+
+.scanner-card,
+.children-card {
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+h2 {
+    text-align: center;
+    font-size: clamp(25px, 4vw, 38px);
+    margin-bottom: 25px;
+}
+
+/* QR OLVASÓ */
+
+#reader {
+    width: 100%;
+    max-width: 450px;
+    min-height: 280px;
+    margin: 0 auto 20px;
+
+    border: 4px dashed #6c7a89;
+    border-radius: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f7f9fa;
+}
+
+/* GOMB */
+
+button {
+    width: 100%;
+    border: none;
+    border-radius: 18px;
+
+    padding: 20px;
+
+    font-size: 24px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    background: #1769aa;
+    color: white;
+
+    transition: transform 0.15s, opacity 0.15s;
+}
+
+button:hover {
+    transform: scale(1.02);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* ÜZENET */
+
+#message {
+    margin-top: 20px;
+    text-align: center;
+
+    font-size: 24px;
+    font-weight: 800;
+
+    min-height: 35px;
+}
+
+/* GYEREKLISTA */
+
+#childrenList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.empty {
+    text-align: center;
+    color: #7f8c8d;
+    font-size: 20px;
+    padding: 30px 10px;
+}
+
+.child {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 18px 20px;
+
+    border-radius: 18px;
+
+    background: #f1f6f8;
+}
+
+.child-name {
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.child-laps {
+    font-size: 28px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+/* TABLET / MOBIL */
+
+@media (max-width: 800px) {
+
+    main {
+        grid-template-columns: 1fr;
+    }
+
+    .scanner-card,
+    .children-card {
+        padding: 22px;
+    }
+
+    #reader {
+        min-height: 250px;
+    }
+}
+/* ==============================
+   ÚJ GYEREK
+   ============================== */
+
+.add-button {
+    margin-bottom: 20px;
+    background: #16803c;
+}
+
+
+/* ==============================
+   MODAL
+   ============================== */
+
+.modal {
+    display: none;
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    position: relative;
+
+    width: min(500px, 100%);
+
+    background: white;
+
+    border-radius: 25px;
+
+    padding: 35px;
+
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h2 {
+    margin-bottom: 30px;
+}
+
+.modal-content label {
+    display: block;
+
+    font-size: 20px;
+    font-weight: 700;
+
+    margin-bottom: 8px;
+}
+
+.modal-content input {
+    width: 100%;
+
+    padding: 18px;
+
+    border: 3px solid #d6dfe4;
+    border-radius: 15px;
+
+    font-size: 22px;
+
+    margin-bottom: 20px;
+
+    outline: none;
+}
+
+.modal-content input:focus {
+    border-color: #1769aa;
+}
+
+.close-button {
+    position: absolute;
+
+    top: 15px;
+    right: 15px;
+
+    width: 45px;
+    height: 45px;
+
+    padding: 0;
+
+    border-radius: 50%;
+
+    background: #e74c3c;
+
+    font-size: 22px;
+}
+
+
+/* ==============================
+   GYEREKKÁRTYA
+   ============================== */
+
+.child {
+    flex-wrap: wrap;
+}
+
+.child-info {
+    flex: 1;
+}
+
+.child-id {
+    margin-top: 4px;
+
+    font-size: 14px;
+
+    color: #7f8c8d;
+}
+
+.child-actions {
+    display: flex;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+}
+
+.small-button {
+    width: auto;
+
+    padding: 10px 14px;
+
+    font-size: 16px;
+
+    border-radius: 12px;
+}
+
+.qr-button {
+    background: #1769aa;
+}
+
+.delete-button {
+    background: #c0392b;
+}
+
+
+/* ==============================
+   QR KÓD ABLAK
+   ============================== */
+
+.qr-modal-content {
+    text-align: center;
+}
+
+#qrCode {
+    display: flex;
+
+    justify-content: center;
+
+    margin: 25px 0;
+}
+
+#qrCode img {
+    width: 250px;
+    height: 250px;
+}
+/* ==============================
+   SZERKESZTÉS GOMB
+   ============================== */
+
+.edit-button {
+    background: #8e44ad;
+}
+
+
+/* ==============================
+   AKTÍV QR OLVASÓ
+   ============================== */
+
+.scanner-active {
+    background: #16803c;
+    cursor: default;
+}
+
+.scanner-active:hover {
+    transform: none;
+}
+
+
+/* ==============================
+   QR KÓD FELIRATA
+   ============================== */
+
+.qr-code-label {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+/* ==============================
+   KAMERA LEÁLLÍTÁSA
+   ============================== */
+
+.stop-scanner-button {
+    margin-top: 12px;
+    background: #c0392b;
+}
+
+.stop-scanner-button:hover {
+    transform: scale(1.02);
+}
+
+
+/* ==============================
+   QR NYOMTATÁS
+   ============================== */
+
+@media print {
+
+    body {
+        background: white !important;
+    }
+
+    body > * {
+        display: none !important;
+    }
+
+    .modal.active {
+        display: flex !important;
+
+        position: static !important;
+
+        background: white !important;
+
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .qr-modal-content {
+        display: block !important;
+
+        width: 100% !important;
+        max-width: none !important;
+
+        padding: 20px !important;
+
+        box-shadow: none !important;
+        border-radius: 0 !important;
+    }
+
+    /* A gyerek neve ne jelenjen meg nyomtatáskor */
+    .qr-modal-content h2 {
+        display: none !important;
+    }
+
+    /* Bezárás gomb és nyomtatás gomb elrejtése */
+    .qr-modal-content .close-button,
+    .qr-modal-content #printQR {
+        display: none !important;
+    }
+
+    #qrCode {
+        margin: 20px auto !important;
+    }
+
+    .qr-code-label {
+        display: block !important;
+
+        text-align: center !important;
+
+        font-size: 26px !important;
+        font-weight: 900 !important;
+    }
+}
+/* ==============================
+   FEJLÉC
+   ============================== */
+
+.header-top {
+    width: min(1200px, 94%);
+    margin: 0 auto;
+
+    position: relative;
+
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+
+    align-items: center;
+}
+
+.header-title {
+    text-align: center;
+}
+
+.settings-button {
+    justify-self: end;
+
+    width: 60px;
+    height: 60px;
+
+    padding: 0;
+
+    border-radius: 50%;
+
+    background: #34495e;
+
+    font-size: 30px;
+}
+
+.settings-button:hover {
+    transform: rotate(20deg) scale(1.05);
+}
+
+
+/* ==============================
+   BEÁLLÍTÁSOK
+   ============================== */
+
+.settings-modal {
+    max-width: 550px;
+}
+
+.settings-modal h2 {
+    margin-bottom: 25px;
+}
+
+.settings-action {
+    width: 100%;
+
+    margin-bottom: 12px;
+
+    background: #1769aa;
+}
+
+.settings-action:hover {
+    transform: scale(1.02);
+}
+
+.settings-modal hr {
+    border: none;
+    border-top: 2px solid #e0e6e9;
+
+    margin: 25px 0;
+}
+
+.danger-button {
+    background: #c0392b;
+}
+/* =========================================
+   QR KÖR – ELRENDEZÉS FINOMÍTÁSA
+   ========================================= */
+
+/* Fő terület */
+
+main {
+    width: min(1100px, 94%);
+    margin: 0 auto 35px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 20px;
+
+    align-items: stretch;
+}
+
+
+/* Fő kártyák */
+
+.scanner-card,
+.children-card {
+    height: 520px;
+
+    padding: 25px;
+
+    overflow: hidden;
+}
+
+
+/* Gyereklista */
+
+.children-card {
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* A lista kapja a görgetést */
+
+#childrenList {
+    flex: 1;
+
+    overflow-y: auto;
+
+    padding-right: 5px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+
+/* Görgetősáv */
+
+#childrenList::-webkit-scrollbar {
+    width: 8px;
+}
+
+#childrenList::-webkit-scrollbar-track {
+    background: #edf2f4;
+
+    border-radius: 10px;
+}
+
+#childrenList::-webkit-scrollbar-thumb {
+    background: #9aa7b0;
+
+    border-radius: 10px;
+}
+
+
+/* Gyerekkártyák */
+
+.child {
+    flex-shrink: 0;
+
+    padding: 14px 16px;
+
+    border-radius: 16px;
+}
+
+
+/* Név */
+
+.child-name {
+    font-size: 21px;
+}
+
+
+/* Kód */
+
+.child-id {
+    font-size: 12px;
+}
+
+
+/* Körszám */
+
+.child-laps {
+    font-size: 23px;
+}
+
+
+/* Gombok */
+
+.child-actions {
+    margin-top: 8px;
+}
+
+
+/* =========================================
+   QR OLVASÓ
+   ========================================= */
+
+#reader {
+    height: 250px;
+
+    min-height: 250px;
+
+    max-width: 100%;
+
+    margin-bottom: 15px;
+}
+
+
+/* =========================================
+   TABLET / KISEBB KÉPERNYŐ
+   ========================================= */
+
+@media (max-width: 800px) {
+
+    main {
+        grid-template-columns: 1fr;
+
+        width: 94%;
+    }
+
+
+    .scanner-card,
+    .children-card {
+        height: auto;
+
+        min-height: 500px;
+    }
+
+
+    #childrenList {
+        max-height: 450px;
+    }
+}
+/* =========================================
+   QR KÖR – ÚJ FŐ ELRENDEZÉS
+   ========================================= */
+
+/* Az egész oldal egy oszlop */
+
+main {
+    width: min(1200px, 94%);
+    margin: 0 auto 40px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 25px;
+}
+
+
+/* =========================================
+   QR-LEOLVASÓ – FELÜL
+   ========================================= */
+
+.scanner-card {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 25px;
+
+    text-align: center;
+}
+
+
+/* Kamera */
+
+#reader {
+    width: min(500px, 100%);
+    height: 280px;
+
+    margin: 15px auto;
+
+    overflow: hidden;
+}
+
+
+/* =========================================
+   GYEREKEK – ALUL
+   ========================================= */
+
+.children-card {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 25px;
+}
+
+
+/* Gyerekek címe */
+
+.children-card h2 {
+    text-align: center;
+
+    margin-bottom: 18px;
+}
+
+
+/* Új gyerek gomb */
+
+#addChildButton {
+    display: block;
+
+    width: min(500px, 100%);
+
+    margin: 0 auto 20px;
+}
+
+
+/* =========================================
+   5 GYEREK / SOR
+   ========================================= */
+
+#childrenList {
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+
+    gap: 15px;
+
+    width: 100%;
+
+    overflow: visible;
+
+    padding: 0;
+}
+
+
+/* =========================================
+   GYEREKKÁRTYA
+   ========================================= */
+
+.child {
+    width: 100%;
+    min-width: 0;
+
+    box-sizing: border-box;
+
+    padding: 15px;
+
+    border-radius: 16px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+
+/* Név */
+
+.child-name {
+    font-size: 20px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+/* Kód */
+
+.child-id {
+    font-size: 12px;
+}
+
+
+/* Körszám */
+
+.child-laps {
+    font-size: 21px;
+
+    margin-left: auto;
+}
+
+
+/* Gombok */
+
+.child-actions {
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    gap: 5px;
+
+    margin-top: 5px;
+}
+
+
+/* Kis gombok */
+
+.child-actions button {
+    min-width: 0;
+
+    padding: 8px 3px;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 900px) {
+
+    #childrenList {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+}
+
+
+/* =========================================
+   KISEBB TABLET / TELEFON
+   ========================================= */
+
+@media (max-width: 600px) {
+
+    #childrenList {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .scanner-card,
+    .children-card {
+        padding: 15px;
+    }
+}
+/* =========================================
+   QR KÖR – KOMPAKT LEOLVASÓ
+   ========================================= */
+
+.scanner-card {
+    height: auto !important;
+    min-height: 0 !important;
+
+    padding: 18px 20px !important;
+}
+
+
+/* Cím */
+
+.scanner-card h2 {
+    margin: 0 0 10px !important;
+}
+
+
+/* Kamera */
+
+#reader {
+    width: min(380px, 100%) !important;
+
+    height: 220px !important;
+    min-height: 220px !important;
+
+    margin: 8px auto 12px !important;
+}
+
+
+/* Indítás gomb */
+
+#startScanner {
+    width: 100%;
+
+    height: 52px;
+}
+
+
+/* Gyerekek panel */
+
+.children-card {
+    height: auto !important;
+
+    padding: 18px 20px !important;
+}
+
+
+/* Gyereklista */
+
+#childrenList {
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr)) !important;
+
+    gap: 12px !important;
+
+    overflow: visible !important;
+}
+
+
+/* Gyerekkártyák */
+
+.child {
+    min-height: 125px;
+
+    padding: 12px !important;
+}
+
+
+/* Név */
+
+.child-name {
+    font-size: 19px !important;
+}
+
+
+/* Körszám */
+
+.child-laps {
+    font-size: 20px !important;
+}
+
+
+/* Gombok */
+
+.child-actions {
+    gap: 4px !important;
+}
+
+.child-actions button {
+    padding: 7px 2px !important;
+
+    font-size: 13px !important;
+}
+/* =========================================
+   QR KÖR – MÉRETEK FINOMÍTÁSA
+   ========================================= */
+
+/* -----------------------------
+   FŐCÍM
+   ----------------------------- */
+
+header h1 {
+    font-size: 52px !important;
+    margin: 0 !important;
+}
+
+header p {
+    font-size: 19px !important;
+    margin: 4px 0 0 !important;
+}
+
+
+/* -----------------------------
+   BEÁLLÍTÁSOK GOMB
+   ----------------------------- */
+
+.settings-button {
+    width: 48px !important;
+    height: 48px !important;
+
+    font-size: 23px !important;
+
+    top: 15px !important;
+    right: 15px !important;
+}
+
+
+/* -----------------------------
+   GYEREKEK CÍM
+   ----------------------------- */
+
+.children-card h2 {
+    font-size: 28px !important;
+
+    margin: 0 0 12px !important;
+}
+
+
+/* -----------------------------
+   ÚJ GYEREK GOMB
+   ----------------------------- */
+
+#addChildButton {
+    width: 360px !important;
+    max-width: 80%;
+
+    height: 48px !important;
+
+    padding: 8px 20px !important;
+
+    margin: 0 auto 16px !important;
+
+    font-size: 18px !important;
+}
+
+
+/* -----------------------------
+   GYEREKEK PANEL
+   ----------------------------- */
+
+.children-card {
+    padding-top: 16px !important;
+}
+
+
+/* -----------------------------
+   GYEREKKÁRTYÁK
+   ----------------------------- */
+
+.child {
+    padding: 10px !important;
+}
+
+.child-name {
+    font-size: 17px !important;
+}
+
+.child-id {
+    font-size: 11px !important;
+}
+
+.child-laps {
+    font-size: 17px !important;
+}
+
+
+/* -----------------------------
+   GYEREKKÁRTYA GOMBOK
+   ----------------------------- */
+
+.child-actions button {
+    padding: 6px 2px !important;
+
+    font-size: 12px !important;
+}
+/* =========================================
+   QR KÖR – VÉGLEGES ELRENDEZÉS
+   ========================================= */
+
+/* -----------------------------------------
+   FEJLÉC
+   ----------------------------------------- */
+
+header {
+    position: relative;
+
+    height: 55px;
+
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+
+/* QR KÖR cím teljes eltüntetése */
+
+header h1,
+header p {
+    display: none !important;
+}
+
+
+/* -----------------------------------------
+   BEÁLLÍTÁSOK – JOBB FELSŐ SAROK
+   ----------------------------------------- */
+
+.settings-button {
+    position: fixed !important;
+
+    top: 12px !important;
+    right: 12px !important;
+
+    width: 46px !important;
+    height: 46px !important;
+
+    padding: 0 !important;
+
+    font-size: 22px !important;
+
+    z-index: 2000;
+}
+
+
+/* -----------------------------------------
+   FŐ TARTALOM
+   ----------------------------------------- */
+
+main {
+    width: min(1400px, 96%) !important;
+
+    margin: 5px auto 30px !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    gap: 18px !important;
+}
+
+
+/* -----------------------------------------
+   LEOLVASÓ PANEL
+   ----------------------------------------- */
+
+.scanner-card {
+    width: 100% !important;
+
+    box-sizing: border-box;
+
+    padding: 15px 25px !important;
+
+    min-height: 0 !important;
+
+    height: auto !important;
+}
+
+
+/* Leolvasó cím */
+
+.scanner-card h2 {
+    font-size: 27px !important;
+
+    margin: 0 0 8px !important;
+}
+
+
+/* Kamera */
+
+#reader {
+    width: min(360px, 100%) !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 5px auto 10px !important;
+    overflow: hidden !important;
+}
+
+#reader video {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    transform: none !important;
+}
+
+
+/* Beolvasás gomb */
+
+#startScanner {
+    width: 100% !important;
+
+    height: 48px !important;
+
+    font-size: 18px !important;
+}
+
+
+/* -----------------------------------------
+   GYEREKEK PANEL
+   ----------------------------------------- */
+
+.children-card {
+    width: 100% !important;
+
+    box-sizing: border-box;
+
+    padding: 15px 20px !important;
+
+    min-height: 0 !important;
+
+    height: auto !important;
+}
+
+
+/* Gyerekek cím */
+
+.children-card h2 {
+    font-size: 27px !important;
+
+    margin: 0 0 8px !important;
+}
+
+
+/* -----------------------------------------
+   ÚJ GYEREK
+   ----------------------------------------- */
+
+#addChildButton {
+    width: 300px !important;
+
+    height: 44px !important;
+
+    margin: 0 auto 12px !important;
+
+    font-size: 17px !important;
+}
+
+
+/* -----------------------------------------
+   5 GYEREK / SOR
+   ----------------------------------------- */
+
+#childrenList {
+    width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr)) !important;
+
+    gap: 10px !important;
+
+    padding: 0 !important;
+
+    overflow: visible !important;
+}
+
+
+/* -----------------------------------------
+   GYEREKKÁRTYÁK
+   ----------------------------------------- */
+
+.child {
+    width: 100% !important;
+
+    box-sizing: border-box;
+
+    padding: 10px !important;
+
+    min-height: 115px;
+}
+
+
+.child-name {
+    font-size: 18px !important;
+}
+
+
+.child-id {
+    font-size: 11px !important;
+}
+
+
+.child-laps {
+    font-size: 18px !important;
+}
+
+
+/* -----------------------------------------
+   GYEREK GOMBOK
+   ----------------------------------------- */
+
+.child-actions {
+    gap: 4px !important;
+
+    margin-top: 5px !important;
+}
+
+
+.child-actions button {
+    padding: 6px 2px !important;
+
+    font-size: 12px !important;
+}
+
+
+/* -----------------------------------------
+   TABLET
+   ----------------------------------------- */
+
+@media (max-width: 900px) {
+
+    main {
+        width: 97% !important;
+    }
+
+    #childrenList {
+        grid-template-columns:
+            repeat(5, minmax(0, 1fr)) !important;
+
+        gap: 7px !important;
+    }
+
+    .child {
+        padding: 7px !important;
+    }
+
+    .child-name {
+        font-size: 15px !important;
+    }
+
+    .child-laps {
+        font-size: 15px !important;
+    }
+
+    .child-actions button {
+        font-size: 10px !important;
+    }
+}
+/* =========================================
+   KAMERA LEÁLLÍTÁSA – KIS GOMB
+   ========================================= */
+
+#stopScanner {
+    display: block;
+    width: 48px !important;
+    height: 42px !important;
+    margin: 8px auto 0 !important;
+    padding: 6px !important;
+    font-size: 18px !important;
+    border-radius: 10px !important;
+    background: #c0392b !important;
+}
+
+
+/* =========================================
+   BEOLVASOTT GYEREK EFFEKT
+   ========================================= */
+
+.child.qr-success {
+    animation: qrSuccess 0.8s ease;
+    position: relative;
+    z-index: 5;
+}
+
+
+@keyframes qrSuccess {
+
+    0% {
+        transform: scale(1);
+    }
+
+    35% {
+        transform: scale(1.08);
+    }
+
+    60% {
+        transform: scale(0.98);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+
+/* Kis "KÖR +1" felirat */
+
+.child.qr-success::after {
+    content: "✓ +1 KÖR";
+
+    position: absolute;
+
+    top: -12px;
+    right: 10px;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    background: #16803c;
+    color: white;
+
+    font-size: 13px;
+    font-weight: 900;
+
+    animation: qrBadge 0.8s ease;
+
+    pointer-events: none;
+}
+
+
+@keyframes qrBadge {
+
+    0% {
+        opacity: 0;
+        transform: translateY(8px) scale(0.7);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translateY(0) scale(1.1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-12px) scale(1);
+    }
+}
+/* =========================================
+   KAMERA LEÁLLÍTÁSA – KIS GOMB
+   ========================================= */
+
+#stopScanner {
+    display: block;
+    width: 48px !important;
+    height: 42px !important;
+    margin: 8px auto 0 !important;
+    padding: 6px !important;
+    font-size: 18px !important;
+    border-radius: 10px !important;
+    background: #c0392b !important;
+}
+
+
+/* =========================================
+   BEOLVASOTT GYEREK EFFEKT
+   ========================================= */
+
+.child.qr-success {
+    position: relative;
+    z-index: 5;
+
+    animation: qrSuccess 0.8s ease;
+}
+
+
+@keyframes qrSuccess {
+
+    0% {
+        transform: scale(1);
+    }
+
+    35% {
+        transform: scale(1.08);
+    }
+
+    60% {
+        transform: scale(0.98);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+
+/* +1 KÖR jelzés */
+
+.child.qr-success::after {
+
+    content: "✓ +1 KÖR";
+
+    position: absolute;
+
+    top: -12px;
+    right: 10px;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    background: #16803c;
+
+    color: white;
+
+    font-size: 13px;
+
+    font-weight: 900;
+
+    animation: qrBadge 0.8s ease;
+
+    pointer-events: none;
+}
+
+
+@keyframes qrBadge {
+
+    0% {
+        opacity: 0;
+        transform:
+            translateY(8px)
+            scale(0.7);
+    }
+
+    30% {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1.1);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translateY(-12px)
+            scale(1);
+    }
+}
+
+/* ===== QR KÖR – FRISSÍTETT, LETISZTULT ELRENDEZÉS ===== */
+body { background: linear-gradient(135deg, #eaf5ff 0%, #e7fbf1 100%); color: #172b3a; }
+header { padding: 12px 16px 4px; }
+header h1, header p { display: none; }
+.header-top { min-height: 42px; }
+.settings-button { position: fixed !important; z-index: 20; top: 12px !important; right: 14px !important; width: 44px !important; height: 44px !important; padding: 0 !important; border-radius: 50% !important; font-size: 20px !important; box-shadow: 0 4px 12px #102a4330; }
+main { width: min(1500px, 96%) !important; margin: 8px auto 32px !important; display: flex !important; flex-direction: column !important; gap: 16px !important; }
+.scanner-card, .children-card { width: 100%; padding: clamp(16px, 2.5vw, 28px) !important; border: 1px solid #dce8ee; border-radius: 22px !important; box-shadow: 0 8px 24px #19354a14 !important; }
+h2 { font-size: clamp(22px, 2.5vw, 30px) !important; margin: 0 0 16px !important; color: #18334a; }
+#reader { width: min(100%, 440px) !important; min-height: 230px !important; margin: 12px auto 14px !important; padding: 6px; overflow: hidden; border: 2px solid #c8d9e5 !important; border-radius: 18px !important; background: #101820 !important; }
+#reader video { width: 100% !important; max-width: 100% !important; height: 230px !important; object-fit: contain !important; transform: none !important; }
+#reader img { max-width: 100%; }
+#startScanner { display: block; max-width: 520px; margin: 12px auto 0; padding: 13px 18px !important; border-radius: 13px !important; font-size: 17px !important; background: #16803c !important; }
+#startScanner.scanner-active { background: #167746 !important; }
+#stopScanner { width: 44px !important; height: 40px !important; margin: 8px auto 0 !important; padding: 0 !important; font-size: 17px !important; border-radius: 11px !important; }
+#message { margin: 12px auto 0 !important; min-height: 22px !important; max-width: 650px; padding: 8px 12px; border-radius: 10px; background: #f0f6f8; color: #29475a; font-size: 14px !important; font-weight: 700; }
+.children-card h2 { margin-bottom: 12px !important; }
+#addChildButton { display: block; max-width: 300px; margin: 0 auto 12px; padding: 11px 16px !important; border-radius: 12px !important; font-size: 16px !important; }
+#childrenList { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 10px !important; overflow: visible !important; }
+.child { min-width: 0; border: 1px solid #dce8ee !important; border-radius: 14px !important; background: #f4f8fa !important; padding: 12px !important; box-shadow: none !important; }
+.child button { min-width: 0; padding: 8px 5px !important; font-size: 13px !important; border-radius: 9px !important; }
+.countdown-panel { width: min(100%, 650px); margin: 0 auto 12px; padding: 14px 16px; border: 1px solid #dce8ee; border-radius: 16px; background: #f5f9fc; text-align: center; }
+.countdown-heading { color: #486276; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.countdown-display { margin: 4px 0 8px; font-size: clamp(38px, 6vw, 58px); line-height: 1.05; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: .04em; color: #163c5b; }
+.countdown-display.countdown-warning { color: #b76b00; }
+.countdown-display.countdown-finished { color: #bd3028; animation: timerPulse .8s ease-in-out 3; }
+.countdown-controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; }
+.countdown-controls label { font-size: 13px; font-weight: 700; color: #40586a; }
+#countdownMinutes { width: 70px; padding: 9px 7px; border: 1px solid #c7d7e1; border-radius: 9px; background: white; color: #172b3a; font-size: 16px; text-align: center; }
+.countdown-controls button { width: auto; padding: 9px 13px !important; border-radius: 9px !important; font-size: 14px !important; }
+#countdownStart { background: #16803c !important; }
+#countdownPause { background: #59758a !important; }
+#countdownReset { background: #286b9e !important; }
+.countdown-controls button:disabled { opacity: .45; cursor: default; transform: none; }
+.countdown-status { min-height: 18px; margin-top: 8px; color: #607789; font-size: 12px; font-weight: 600; }
+@keyframes timerPulse { 50% { transform: scale(1.06); } }
+@media (max-width: 900px) { #childrenList { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; } }
+@media (max-width: 600px) { main { width: 96% !important; } .scanner-card, .children-card { padding: 14px !important; } #childrenList { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } #reader, #reader video { height: 220px !important; min-height: 220px !important; } .countdown-controls { gap: 6px; } .countdown-controls button { flex: 1 1 30%; } }
+
+
+/* ===== QR KÖR – KOMPAKT, FELJEBB HOZOTT ELRENDEZÉS ===== */
+html, body { min-height: 100%; }
+body { margin: 0 !important; }
+header { height: 0 !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; }
+.header-top { min-height: 0 !important; height: 0 !important; padding: 0 !important; }
+main { width: min(1240px, 97%) !important; margin: 8px auto 18px !important; gap: 10px !important; }
+.scanner-card { width: min(100%, 900px) !important; align-self: center; padding: 10px 14px 12px !important; gap: 0 !important; }
+.scanner-card h2 { display: none !important; }
+.countdown-panel { width: auto !important; max-width: none !important; margin: 0 auto 6px !important; padding: 0 !important; border: 0 !important; background: transparent !important; }
+.countdown-display { margin: 0 !important; font-size: clamp(34px, 4vw, 48px) !important; line-height: 1 !important; }
+#reader { width: min(100%, 330px) !important; height: 190px !important; min-height: 190px !important; margin: 5px auto 7px !important; padding: 3px !important; border-radius: 13px !important; }
+#reader video { height: 184px !important; max-height: 184px !important; object-fit: contain !important; }
+#startScanner { width: min(100%, 390px) !important; min-height: 38px !important; margin: 5px auto 0 !important; padding: 8px 12px !important; font-size: 15px !important; }
+#stopScanner { display: block; width: 30px !important; min-width: 30px !important; height: 28px !important; min-height: 28px !important; margin: 5px auto 0 !important; padding: 0 !important; border-radius: 8px !important; font-size: 14px !important; line-height: 1 !important; }
+#message { box-sizing: border-box; width: min(100%, 520px) !important; min-height: 0 !important; margin: 8px auto 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; text-align: center; font-size: 0 !important; }
+#message:not(:empty) { padding: 13px 18px !important; border-radius: 15px !important; background: #16803c !important; color: #fff !important; font-size: clamp(19px, 2.2vw, 27px) !important; line-height: 1.2 !important; font-weight: 900 !important; box-shadow: 0 5px 0 #0d6330, 0 8px 18px #16803c30; animation: messagePop .35s ease-out; }
+#message[style*="192, 57, 43"], #message[style*="#c0392b"] { background: #b83228 !important; box-shadow: 0 5px 0 #87251e, 0 8px 18px #b8322830; }
+@keyframes messagePop { from { opacity: .25; transform: scale(.88); } to { opacity: 1; transform: scale(1); } }
+.children-card { padding: 12px 16px !important; }
+.children-card h2 { margin: 0 0 8px !important; font-size: 23px !important; }
+#addChildButton { height: 38px !important; margin-bottom: 8px !important; }
+#childrenList { gap: 8px !important; }
+.child { min-height: 98px !important; padding: 8px !important; }
+.child-name { font-size: 16px !important; }
+.child-laps { font-size: 17px !important; }
+.child-actions { gap: 3px !important; }
+.child-actions button { padding: 5px 2px !important; font-size: 11px !important; }
+.timer-settings { margin: 8px 0 16px; padding: 14px; border: 1px solid #dce8ee; border-radius: 14px; background: #f5f9fc; }
+.timer-settings h3 { margin: 0 0 10px; color: #18334a; }
+.countdown-controls { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; justify-content: center; align-items: center; gap: 8px !important; }
+.countdown-controls label { white-space: nowrap; }
+#countdownMinutes { flex: 0 0 76px; width: 76px !important; min-width: 76px; box-sizing: border-box; }
+.countdown-controls button { flex: 0 0 auto; white-space: nowrap; }
+.countdown-status { font-size: 13px !important; }
+@media (max-width: 650px) {
+  main { margin-top: 4px !important; }
+  .scanner-card { padding: 8px !important; }
+  #reader { width: min(100%, 310px) !important; height: 180px !important; min-height: 180px !important; }
+  #reader video { height: 174px !important; max-height: 174px !important; }
+  .countdown-controls { flex-wrap: wrap !important; }
+  .countdown-controls button { flex: 1 1 auto; }
+  #childrenList { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+
+
+/* ===== QR Kör: időzítő elrendezés, nagyobb kamera, látványos körjelzés ===== */
+.timer-camera-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(16px, 3vw, 34px);
+    width: 100%;
+    margin: 0 auto 4px;
+}
+.countdown-panel {
+    flex: 0 1 auto;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+}
+.countdown-display {
+    font-size: clamp(48px, 6vw, 76px) !important;
+    line-height: 1 !important;
+    letter-spacing: .035em;
+    white-space: nowrap;
+}
+.countdown-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+    min-width: 142px;
+}
+.countdown-actions button {
+    width: 100% !important;
+    min-height: 35px;
+    padding: 7px 12px !important;
+    border-radius: 9px !important;
+    font-size: 14px !important;
+    white-space: nowrap;
+}
+#countdownStart { background: #16803c !important; }
+#countdownPause { background: #71899a !important; }
+#countdownReset { background: #286b9e !important; }
+.countdown-actions button:disabled { opacity: .45; cursor: default; }
+.main-countdown-status {
+    margin: 0 auto 7px !important;
+    min-height: 17px;
+    font-size: 12px !important;
+    color: #63798a;
+    text-align: center;
+}
+.timer-settings {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+.timer-settings label {
+    font-size: 16px;
+    font-weight: 800;
+    color: #18334a;
+}
+#countdownMinutes {
+    width: 100px !important;
+    min-height: 42px;
+    font-size: 19px !important;
+    font-weight: 700;
+}
+.settings-hint {
+    color: #607789;
+    font-size: 13px;
+}
+#reader {
+    width: min(100%, 480px) !important;
+    height: 270px !important;
+    min-height: 270px !important;
+    margin: 7px auto 10px !important;
+    overflow: hidden !important;
+}
+#reader video {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 270px !important;
+    object-fit: contain !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+}
+#reader video,
+#reader canvas {
+    /* A kamera előnézete természetes, nem tükrözött irányú. */
+    direction: ltr !important;
+}
+#stopScanner {
+    width: 34px !important;
+    min-width: 34px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    margin: 5px auto 0 !important;
+    padding: 0 !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+}
+/* Feltűnő, nem zöld +1 kör jelzés és erőteljesebb animáció */
+.child.qr-success {
+    z-index: 20 !important;
+    animation: qrCardCelebration 1.15s cubic-bezier(.2,.9,.25,1.2) both !important;
+    outline: 4px solid #ffcf24 !important;
+    box-shadow: 0 0 0 7px #ffcf2455, 0 12px 28px #ff7a0055 !important;
+}
+.child.qr-success::after {
+    content: "🎉 +1 KÖR!";
+    top: -20px !important;
+    right: 5px !important;
+    z-index: 30;
+    padding: 10px 16px !important;
+    border: 3px solid #fff !important;
+    border-radius: 16px !important;
+    background: linear-gradient(135deg, #ff2d95, #ff7a00) !important;
+    color: #fff !important;
+    font-size: clamp(16px, 1.6vw, 22px) !important;
+    font-weight: 1000 !important;
+    letter-spacing: .03em;
+    text-shadow: 0 2px 3px #8b174d;
+    box-shadow: 0 5px 0 #b92762, 0 10px 22px #ff2d9580;
+    animation: qrBadgeBlast 1.15s cubic-bezier(.18,.9,.25,1.25) both !important;
+}
+@keyframes qrCardCelebration {
+    0% { transform: scale(1); }
+    18% { transform: scale(1.09) rotate(-1deg); }
+    38% { transform: scale(.98) rotate(1deg); }
+    58% { transform: scale(1.06) rotate(-.5deg); }
+    78% { transform: scale(1.01); }
+    100% { transform: scale(1); }
+}
+@keyframes qrBadgeBlast {
+    0% { opacity: 0; transform: translateY(24px) scale(.25) rotate(-12deg); }
+    24% { opacity: 1; transform: translateY(-5px) scale(1.28) rotate(5deg); }
+    42% { opacity: 1; transform: translateY(0) scale(.94) rotate(-3deg); }
+    60% { opacity: 1; transform: translateY(-3px) scale(1.08) rotate(2deg); }
+    82% { opacity: 1; transform: translateY(-12px) scale(1.02); }
+    100% { opacity: 0; transform: translateY(-30px) scale(.88); }
+}
+@media (max-width: 650px) {
+    .timer-camera-row { gap: 12px; }
+    .countdown-display { font-size: clamp(40px, 11vw, 60px) !important; }
+    .countdown-actions { min-width: 116px; }
+    .countdown-actions button { font-size: 12px !important; padding: 7px 6px !important; }
+    #reader { width: min(100%, 420px) !important; height: 245px !important; min-height: 245px !important; }
+    #reader video { max-height: 245px !important; }
+}
+
+
+/* ===== Kompakt gyerekkártyák és nagy, kamera alatti visszajelzés ===== */
+main { width: min(1500px, 98%) !important; gap: 10px !important; }
+.scanner-card, .children-card { padding: 12px 14px !important; margin-bottom: 0 !important; }
+.children-card h2 { margin: 2px 0 7px !important; font-size: 24px !important; }
+#addChildButton { max-width: 225px !important; min-height: 34px !important; padding: 6px 10px !important; margin: 0 auto 8px !important; font-size: 14px !important; }
+#childrenList { display: grid !important; grid-template-columns: repeat(7, minmax(0, 1fr)) !important; gap: 7px !important; align-items: stretch; }
+.child { display: flex !important; flex-direction: column !important; justify-content: space-between !important; align-items: stretch !important; gap: 4px !important; min-width: 0 !important; min-height: 84px !important; padding: 6px 7px !important; border-radius: 11px !important; position: relative; }
+.child-info { min-width: 0; text-align: center; }
+.child-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px !important; line-height: 1.2 !important; }
+.child-id { font-size: 10px !important; line-height: 1.1; }
+.child-laps { align-self: flex-end; font-size: 15px !important; line-height: 1.15 !important; margin: 0 !important; }
+.child-actions { display: flex !important; flex-wrap: nowrap !important; gap: 3px !important; width: 100%; }
+.child-actions button { flex: 1 1 0 !important; min-width: 0 !important; width: auto !important; height: 23px !important; min-height: 23px !important; padding: 1px 2px !important; font-size: 11px !important; border-radius: 6px !important; }
+#message.scan-feedback { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: min(100%, 520px); min-height: 0; margin: 8px auto 0 !important; padding: 8px 12px; border-radius: 15px; text-align: center; font-weight: 900; line-height: 1.15; box-sizing: border-box; }
+#message.scan-feedback-success { color: #fff !important; background: linear-gradient(120deg, #ff2996, #ff7b00, #ffd21f); border: 3px solid #fff; box-shadow: 0 5px 0 #bb2b65, 0 8px 22px #ff6c0080; }
+#message .scan-name { font-size: clamp(16px, 2vw, 22px); }
+#message .scan-plus { font-size: clamp(25px, 3.2vw, 38px); font-weight: 1000; letter-spacing: .04em; text-shadow: 0 2px 3px #8b174d; }
+#message .scan-total { font-size: clamp(15px, 1.8vw, 20px); font-weight: 900; background: #fff; color: #a51c58; padding: 3px 12px; border-radius: 30px; }
+#message.scan-feedback-pop { animation: scanFeedbackPop .9s cubic-bezier(.18,.9,.25,1.25) both; }
+@keyframes scanFeedbackPop {
+  0% { opacity: 0; transform: translateY(20px) scale(.45) rotate(-3deg); }
+  35% { opacity: 1; transform: translateY(-5px) scale(1.12) rotate(2deg); }
+  60% { transform: translateY(0) scale(.96) rotate(-1deg); }
+  80% { transform: translateY(-2px) scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@media (max-width: 1050px) { #childrenList { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; } }
+@media (max-width: 700px) { #childrenList { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; } .child { min-height: 82px !important; } }
+
+
+/* ===== Utolsó finomhangolás: kisebb idő, középre igazított körszám, tükrözött preview ===== */
+/* Csökkentett fejléc/időzítő magasság, hogy a gyereklista görgetés nélkül jobban látszódjon. */
+.timer-camera-row {
+    gap: 14px !important;
+    margin: 0 auto 0 !important;
+}
+.countdown-display {
+    font-size: clamp(38px, 4.3vw, 54px) !important;
+    line-height: .95 !important;
+}
+.countdown-actions {
+    gap: 4px !important;
+}
+.countdown-actions button {
+    min-height: 29px !important;
+    padding: 4px 9px !important;
+    font-size: 12px !important;
+}
+.main-countdown-status {
+    margin: 0 auto 3px !important;
+    min-height: 12px !important;
+    font-size: 10px !important;
+}
+.scanner-card {
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+}
+#reader {
+    height: 220px !important;
+    min-height: 220px !important;
+    margin: 4px auto 6px !important;
+}
+#reader video {
+    max-height: 220px !important;
+    transform: scaleX(-1) !important;
+    -webkit-transform: scaleX(-1) !important;
+}
+/* A körszám legyen középen, a kártya szélességétől függetlenül. */
+.child-laps {
+    align-self: center !important;
+    text-align: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+
+/* ===== Beolvasási visszajelzés overlay: ne mozdítsa el a gyereklistát ===== */
+.scanner-card {
+    position: relative !important;
+    /* A kártya magasságát a kamera és a kezelőszervek határozzák meg. */
+    overflow: visible !important;
+}
+#message.scan-feedback {
+    position: absolute !important;
+    left: 50% !important;
+    bottom: 12px !important;
+    transform: translateX(-50%);
+    z-index: 50 !important;
+    width: min(520px, calc(100% - 28px)) !important;
+    margin: 0 !important;
+    pointer-events: none;
+}
+/* Az animáció ne írja felül az overlay középre igazítását. */
+#message.scan-feedback-pop {
+    animation: scanFeedbackOverlayPop .9s cubic-bezier(.18,.9,.25,1.25) both !important;
+}
+@keyframes scanFeedbackOverlayPop {
+    0% { opacity: 0; translate: 0 20px; scale: .45; rotate: -3deg; }
+    35% { opacity: 1; translate: 0 -5px; scale: 1.12; rotate: 2deg; }
+    60% { opacity: 1; translate: 0 0; scale: .96; rotate: -1deg; }
+    80% { opacity: 1; translate: 0 -2px; scale: 1.04; }
+    100% { opacity: 1; translate: 0 0; scale: 1; rotate: 0deg; }
+}
+/* Visszaállítás természetes, nem tükrözött kameraelőnézetre. */
+#reader video {
+    transform: none !important;
+    -webkit-transform: none !important;
+}
+
+
+/* ===== Tükrözött kamerakép és színátmenetes oldalháttér ===== */
+html, body {
+    min-height: 100%;
+    background: linear-gradient(135deg, #dceeff 0%, #e7f8f3 48%, #f6e8ff 100%) fixed !important;
+}
+body {
+    background-image: linear-gradient(135deg, #dceeff 0%, #e7f8f3 48%, #f6e8ff 100%) !important;
+    background-attachment: fixed !important;
+}
+/* Tükörnézet: a kamera képe vízszintesen megfordul. */
+#reader video {
+    transform: scaleX(-1) !important;
+    -webkit-transform: scaleX(-1) !important;
+}
+
+
+/* Sötét, színes foltos háttér */
+html, body { min-height:100%; background:#101a35 !important; }
+body {
+  background-color:#101a35 !important;
+  background-image:
+    radial-gradient(ellipse at 12% 18%, rgba(0,210,255,.30) 0%, rgba(0,210,255,.13) 18%, transparent 43%),
+    radial-gradient(ellipse at 88% 12%, rgba(164,70,255,.34) 0%, rgba(164,70,255,.14) 20%, transparent 45%),
+    radial-gradient(ellipse at 78% 78%, rgba(255,55,145,.25) 0%, rgba(255,55,145,.10) 19%, transparent 43%),
+    radial-gradient(ellipse at 18% 88%, rgba(0,220,155,.25) 0%, rgba(0,220,155,.10) 20%, transparent 45%),
+    radial-gradient(ellipse at 52% 48%, rgba(64,95,210,.18) 0%, transparent 48%),
+    linear-gradient(135deg,#101a35 0%,#172448 48%,#10182f 100%) !important;
+  background-attachment:fixed !important;
+  background-repeat:no-repeat !important;
+}
+.scanner-card, .children-card {
+  background:rgba(255,255,255,.96) !important;
+  box-shadow:0 12px 32px rgba(0,0,0,.20) !important;
+}
+
+
+/* Gyerekkártyák: színes, finom átmenetes felületek a sötét témához */
+#childrenList {
+  padding: 8px !important;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 8% 10%, rgba(0,210,255,.20), transparent 40%),
+    radial-gradient(ellipse at 92% 90%, rgba(190,75,255,.22), transparent 42%),
+    linear-gradient(135deg, rgba(20,35,72,.96), rgba(29,43,83,.96)) !important;
+}
+#childrenList .child {
+  background: linear-gradient(145deg, #ffffff 0%, #eaf4ff 100%) !important;
+  border: 1px solid rgba(255,255,255,.85) !important;
+  box-shadow: 0 5px 14px rgba(0,0,0,.18) !important;
+  color: #17314c !important;
+}
+#childrenList .child:nth-child(4n + 2) {
+  background: linear-gradient(145deg, #ffffff 0%, #f3eaff 100%) !important;
+}
+#childrenList .child:nth-child(4n + 3) {
+  background: linear-gradient(145deg, #ffffff 0%, #e5fbf5 100%) !important;
+}
+#childrenList .child:nth-child(4n) {
+  background: linear-gradient(145deg, #ffffff 0%, #fff0e4 100%) !important;
+}

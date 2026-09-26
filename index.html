@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>QR Kör</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+ <header>
+
+    <div class="header-top">
+
+        <div></div>
+
+        <div class="header-title">
+            <h1>🏃 QR KÖR</h1>
+            <p>QR-kódos körszámláló</p>
+        </div>
+
+        <button id="settingsButton" class="settings-button">
+            ⚙️
+        </button>
+
+    </div>
+
+</header>
+
+    <main>
+
+        <!-- QR BEOLVASÓ -->
+        <section class="scanner-card">
+
+            <div class="timer-camera-row" aria-label="Foglalkozás hátralévő ideje">
+                <div class="countdown-panel">
+                    <div id="countdownDisplay" class="countdown-display" role="timer" aria-live="off">10:00</div>
+                </div>
+                <div class="countdown-actions">
+                    <button id="countdownStart" type="button">▶ Indítás</button>
+                    <button id="countdownPause" type="button" disabled>⏸ Szünet</button>
+                    <button id="countdownReset" type="button">↺ Újrakezdés</button>
+                </div>
+            </div>
+            <div id="countdownStatus" class="countdown-status main-countdown-status" aria-live="polite">Állítsd be az időt, majd indítsd el.</div>
+
+            <div id="reader"></div>
+
+          <button id="startScanner">
+    📷 Beolvasás indítása
+</button>
+
+<button id="stopScanner" class="stop-scanner-button" type="button" title="Kamera leállítása" aria-label="Kamera leállítása" style="display: none;">⏹</button>
+
+<div id="message"></div>
+
+        </section>
+
+
+        <!-- GYEREKEK -->
+        <section class="children-card">
+
+            <h2>👥 Gyerekek</h2>
+
+            <button id="addChildButton" class="add-button">
+                ➕ Új gyerek
+            </button>
+
+            <div id="childrenList">
+                <p class="empty">
+                    Még nincs hozzáadott gyerek.
+                </p>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ÚJ GYEREK ABLAK -->
+
+    <div id="childModal" class="modal">
+
+        <div class="modal-content">
+
+            <button id="closeModal" class="close-button">
+                ✕
+            </button>
+
+            <h2>➕ Új gyerek</h2>
+
+            <label for="childName">
+                Gyerek neve
+            </label>
+
+            <input
+                id="childName"
+                type="text"
+                placeholder="Pl. Kovács Bence"
+                autocomplete="off"
+            >
+
+            <button id="saveChildButton">
+                💾 Gyerek mentése
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- BEÁLLÍTÁSOK -->
+
+<div id="settingsModal" class="modal">
+
+    <div class="modal-content settings-modal">
+
+        <button id="closeSettings" class="close-button">
+            ✕
+        </button>
+
+        <h2>⚙️ Beállítások</h2>
+
+        <section class="timer-settings" aria-label="Visszaszámláló időbeállítása">
+            <label for="countdownMinutes">⏱️ Időbeállítás (perc)</label>
+            <input id="countdownMinutes" type="number" min="1" max="180" value="10">
+            <p class="settings-hint">Állítsd be a foglalkozás időtartamát.</p>
+        </section>
+
+        <button id="resetLapsButton" class="settings-action">
+            🔄 Minden kör nullázása
+        </button>
+
+        <button id="printAllQRButton" class="settings-action">
+            📱 QR-kódok nyomtatása
+        </button>
+
+        <button id="exportDataButton" class="settings-action">
+            💾 Adatok mentése
+        </button>
+
+        <button id="importDataButton" class="settings-action">
+            📂 Adatok betöltése
+        </button>
+
+        <input
+            type="file"
+            id="importFile"
+            accept=".json,application/json"
+            style="display: none;"
+        >
+
+        <hr>
+
+        <button
+            id="deleteAllButton"
+            class="settings-action danger-button"
+        >
+            🗑️ Összes gyerek törlése
+        </button>
+
+    </div>
+
+</div>
+
+
+    <!-- QR OLVASÓ -->
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8"></script>
+
+    <!-- QR GENERÁTOR -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
