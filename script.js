@@ -52,6 +52,42 @@ let editingChildId = null;
 
 let scanLocked = false;
 
+// A köridőmérés a visszaszámláló indításával együtt indul.
+let lapClockElapsedMs = 0;
+let lapClockStartedAt = null;
+
+function getLapClockElapsedMs() {
+    return lapClockStartedAt === null
+        ? lapClockElapsedMs
+        : lapClockElapsedMs + (Date.now() - lapClockStartedAt);
+}
+
+function startLapClock() {
+    if (lapClockStartedAt === null) lapClockStartedAt = Date.now();
+}
+
+function pauseLapClock() {
+    if (lapClockStartedAt !== null) {
+        lapClockElapsedMs += Date.now() - lapClockStartedAt;
+        lapClockStartedAt = null;
+    }
+}
+
+function resetLapClock() {
+    lapClockElapsedMs = 0;
+    lapClockStartedAt = null;
+    children.forEach(child => { child.lastLapElapsedMs = null; });
+    saveChildren();
+}
+
+function formatLapDuration(milliseconds) {
+    const total = Math.max(0, Math.floor(milliseconds / 1000));
+    const minutes = Math.floor(total / 60);
+    const seconds = total % 60;
+    const tenths = Math.floor((milliseconds % 1000) / 100);
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${tenths}`;
+}
+
 
 // ==============================
 // RÉGI KÓDOK ÁTALAKÍTÁSA
@@ -78,6 +114,8 @@ children = children.map(child => {
         }
     }
 
+    if (!Array.isArray(child.lapTimes)) child.lapTimes = [];
+    if (typeof child.lastLapElapsedMs !== "number") child.lastLapElapsedMs = null;
     return child;
 });
 
@@ -213,6 +251,9 @@ function renderChildren() {
             document.createElement("div");
 
         element.className = "child";
+        element.tabIndex = 0;
+        element.setAttribute("role", "button");
+        element.setAttribute("aria-label", `${child.name} köridőinek megtekintése`);
 
         element.dataset.childId =
             child.id;
@@ -295,10 +336,12 @@ childrenList.addEventListener(
     "click",
     event => {
 
-        const button =
-            event.target.closest("button");
-
-        if (!button) return;
+        const button = event.target.closest("button");
+        if (!button) {
+            const card = event.target.closest(".child[data-child-id]");
+            if (card) showChildLapTimes(card.dataset.childId);
+            return;
+        }
 
 
         const id =
@@ -339,6 +382,40 @@ childrenList.addEventListener(
     }
 );
 
+childrenList.addEventListener("keydown", event => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const card = event.target.closest(".child[data-child-id]");
+    if (!card || event.target.closest("button")) return;
+    event.preventDefault();
+    showChildLapTimes(card.dataset.childId);
+});
+
+function showChildLapTimes(id) {
+    const child = findChild(id);
+    if (!child) return;
+    const list = document.getElementById("lapTimesList");
+    const title = document.getElementById("lapTimesTitle");
+    title.textContent = `⏱️ ${child.name} – köridők`;
+    const times = Array.isArray(child.lapTimes) ? child.lapTimes : [];
+    if (!times.length) {
+        list.innerHTML = '<p class="lap-times-empty">Ehhez a gyerekhez még nincs rögzített QR-beolvasásos köridő.</p>';
+    } else {
+        list.innerHTML = times.map((entry, index) => `
+            <div class="lap-time-row">
+                <span>${index + 1}. kör</span>
+                <strong>${formatLapDuration(Number(entry.durationMs) || 0)}</strong>
+            </div>
+        `).join("");
+    }
+    document.getElementById("lapTimesModal").classList.add("active");
+}
+
+document.getElementById("closeLapTimes").addEventListener("click", () => {
+    document.getElementById("lapTimesModal").classList.remove("active");
+});
+document.getElementById("lapTimesModal").addEventListener("click", event => {
+    if (event.target.id === "lapTimesModal") event.currentTarget.classList.remove("active");
+});
 
 // ==============================
 // ÚJ GYEREK
@@ -484,7 +561,9 @@ function saveChild() {
 
         name: name,
 
-        laps: 0
+        laps: 0,
+        lapTimes: [],
+        lastLapElapsedMs: null
 
     });
 
@@ -551,7 +630,7 @@ function editChild(id) {
 // +1 KÖR
 // ==============================
 
-function addLap(id) {
+function addLap(id, recordTime = false) {
 
     const child =
         findChild(id);
@@ -567,6 +646,16 @@ function addLap(id) {
         return;
     }
 
+
+    if (recordTime) {
+        const elapsed = getLapClockElapsedMs();
+        if (!Array.isArray(child.lapTimes)) child.lapTimes = [];
+        const duration = child.lastLapElapsedMs === null || typeof child.lastLapElapsedMs !== "number"
+            ? elapsed
+            : Math.max(0, elapsed - child.lastLapElapsedMs);
+        child.lapTimes.push({ durationMs: duration, recordedAt: new Date().toISOString() });
+        child.lastLapElapsedMs = elapsed;
+    }
 
     child.laps++;
 
@@ -910,7 +999,7 @@ function qrCodeScanned(
         return;
     }
 
-    addLap(child.id);
+    addLap(child.id, true);
     highlightChild(child.id);
 
     showMessage(
@@ -1328,6 +1417,8 @@ resetLapsButton.addEventListener(
             child => {
 
                 child.laps = 0;
+                child.lapTimes = [];
+                child.lastLapElapsedMs = null;
             }
         );
 
@@ -1806,6 +1897,7 @@ renderChildren();
             pauseButton.disabled = true;
             minutesInput.disabled = false;
             status.textContent = "⏰ Lejárt az idő!";
+            pauseLapClock();
         }
     };
     startButton.addEventListener("click", () => {
@@ -1816,6 +1908,7 @@ renderChildren();
             remainingSeconds = mins * 60;
         }
         endAt = Date.now() + remainingSeconds * 1000;
+        startLapClock();
         intervalId = setInterval(tick, 200);
         startButton.disabled = true;
         pauseButton.disabled = false;
@@ -1827,6 +1920,7 @@ renderChildren();
         if (intervalId === null) return;
         tick();
         stopInterval();
+        pauseLapClock();
         startButton.disabled = false;
         pauseButton.disabled = true;
         minutesInput.disabled = false;
@@ -1834,6 +1928,8 @@ renderChildren();
     });
     resetButton.addEventListener("click", () => {
         stopInterval();
+        countdownHasExpired = false;
+        resetLapClock();
         const mins = Math.min(180, Math.max(1, Number.parseInt(minutesInput.value, 10) || 10));
         minutesInput.value = mins;
         remainingSeconds = mins * 60;

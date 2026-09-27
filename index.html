@@ -111,6 +111,15 @@
 
     </div>
 
+    <!-- GYEREK KÖRIDŐI -->
+    <div id="lapTimesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="lapTimesTitle">
+        <div class="modal-content lap-times-modal-content">
+            <button id="closeLapTimes" class="close-button" type="button" aria-label="Bezárás">✕</button>
+            <h2 id="lapTimesTitle">⏱️ Köridők</h2>
+            <div id="lapTimesList" class="lap-times-list"></div>
+        </div>
+    </div>
+
     <!-- BEÁLLÍTÁSOK -->
 
 <div id="settingsModal" class="modal">
@@ -124,9 +133,16 @@
         <h2>⚙️ Beállítások</h2>
 
         <section class="timer-settings" aria-label="Visszaszámláló időbeállítása">
-            <label for="countdownMinutes">⏱️ Időbeállítás (perc)</label>
-            <input id="countdownMinutes" type="number" min="1" max="180" value="10">
-            <p class="settings-hint">Állítsd be a foglalkozás időtartamát.</p>
+            <div class="countdown-time-inputs">
+                <label for="countdownMinutes">⏱️ Időbeállítás</label>
+                <div class="countdown-time-fields">
+                    <input id="countdownMinutes" type="number" min="0" max="180" value="10" aria-label="Perc">
+                    <span>perc</span>
+                    <input id="countdownSeconds" type="number" min="0" max="59" value="0" aria-label="Másodperc">
+                    <span>mp</span>
+                </div>
+            </div>
+            <p class="settings-hint">Állítsd be a foglalkozás időtartamát percben és másodpercben.</p>
         </section>
 
         <button id="resetLapsButton" class="settings-action">

@@ -1929,3 +1929,83 @@ body {
 #childrenList .child:nth-child(4n) {
   background: linear-gradient(145deg, #ffffff 0%, #fff0e4 100%) !important;
 }
+
+
+/* ===== Gyereklista külön görgetése; a beolvasó maradjon stabil helyen ===== */
+/* A lista saját görgetőterület, így a QR-olvasó nem mozdul el a gyerekek görgetésekor. */
+#childrenList {
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    align-content: start;
+    max-height: 390px; /* laptopon kb. 4 kártyasor */
+}
+
+/* Tablet: kompakt kártyák, 6 oszlop, egyszerre 2 sor látszik. */
+@media (min-width: 701px) and (max-width: 1100px) {
+    main {
+        width: min(100%, 1100px) !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 8px !important;
+        margin-bottom: 12px !important;
+    }
+    .scanner-card, .children-card {
+        padding: 8px 10px !important;
+        border-radius: 17px !important;
+    }
+    .timer-camera-row { gap: 8px !important; }
+    .countdown-display { font-size: clamp(34px, 5vw, 48px) !important; }
+    #reader {
+        height: 170px !important;
+        min-height: 170px !important;
+        margin: 3px auto 5px !important;
+    }
+    #reader video { max-height: 170px !important; }
+    .children-card h2 { font-size: 20px !important; margin: 1px 0 5px !important; }
+    #addChildButton { min-height: 29px !important; padding: 4px 8px !important; margin-bottom: 5px !important; }
+    #childrenList {
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+        gap: 5px !important;
+        padding: 6px !important;
+        max-height: 190px !important; /* 2 sor kártya */
+    }
+    .child {
+        min-height: 76px !important;
+        padding: 4px 5px !important;
+        gap: 3px !important;
+        border-radius: 9px !important;
+    }
+    .child-name { font-size: 13px !important; }
+    .child-id { font-size: 9px !important; }
+    .child-laps { font-size: 13px !important; }
+    .child-actions { gap: 2px !important; }
+    .child-actions button { height: 19px !important; min-height: 19px !important; font-size: 9px !important; padding: 0 1px !important; }
+}
+
+/* Laptop/asztali: legfeljebb 4 sor látszik; a többi a gyereklistán belül görgethető. */
+@media (min-width: 1101px) {
+    #childrenList { max-height: 390px !important; }
+}
+
+/* Telefon: továbbra is a lista saját területe görgethető, a beolvasó fölötte marad. */
+@media (max-width: 700px) {
+    #childrenList { max-height: 190px !important; }
+}
+
+
+/* KÖRIDŐK – külön részletező ablak, a kártyarács elrendezését nem módosítja */
+.lap-times-modal-content { max-height: 85vh; overflow-y: auto; }
+.lap-times-list { display: grid; gap: 8px; max-height: 55vh; overflow-y: auto; }
+.lap-time-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 14px; border-radius: 12px; background: #eef5fa; color: #17314c; font-size: 18px; }
+.lap-time-row strong { font-size: 21px; font-variant-numeric: tabular-nums; }
+.lap-times-empty { text-align: center; color: #52616b; padding: 18px 8px; line-height: 1.5; }
+.child { cursor: pointer; }
+.child:focus-visible { outline: 3px solid #1769aa; outline-offset: 2px; }
+
+
+/* Időbeállítás: perc és másodperc */
+.countdown-time-inputs { display: flex; flex-direction: column; gap: 8px; }
+.countdown-time-fields { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+#countdownSeconds { width: 70px; padding: 9px 7px; border: 1px solid #c7d7e1; border-radius: 9px; background: white; color: #172b3a; font-size: 16px; text-align: center; }
+.countdown-time-fields span { color: #40586a; font-size: 14px; font-weight: 700; }
+@media (max-width: 650px) { .countdown-time-fields { gap: 6px; } #countdownMinutes, #countdownSeconds { flex: 0 0 64px; width: 64px !important; min-width: 64px; } }
