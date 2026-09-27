@@ -1042,7 +1042,7 @@ async function startScanner() {
         await scanner.start(
 
             {
-                facingMode: "environment"
+                facingMode: "user"
             },
 
             {
