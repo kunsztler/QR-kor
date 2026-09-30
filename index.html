@@ -145,13 +145,26 @@
             <p class="settings-hint">Állítsd be a foglalkozás időtartamát percben és másodpercben.</p>
         </section>
 
+        <section class="tablet-mode-settings" aria-label="Tablet nézet beállítása">
+            <label class="tablet-mode-label" for="tabletModeToggle">
+                <input id="tabletModeToggle" type="checkbox">
+                <span>📱 Kompakt tablet nézet bekapcsolása</span>
+            </label>
+            <p class="settings-hint">Kapcsold be, ha a készülék nem vált automatikusan a kompakt, 6 oszlopos tablet elrendezésre.</p>
+        </section>
+
         <button id="resetLapsButton" class="settings-action">
             🔄 Minden kör nullázása
         </button>
 
-        <button id="printAllQRButton" class="settings-action">
-            📱 QR-kódok nyomtatása
-        </button>
+        <div class="qr-batch-settings">
+            <label for="qrBatchCount">📱 Nyomtatható QR-kódok száma</label>
+            <input id="qrBatchCount" type="number" min="1" max="500" value="50" inputmode="numeric">
+            <button id="printAllQRButton" class="settings-action">
+                QR-kódok előnézete / PDF
+            </button>
+            <p class="settings-hint">Előre elkészíthető, név nélküli kódok. Később a gyerekekhez rendelhetők.</p>
+        </div>
 
         <button id="exportDataButton" class="settings-action">
             💾 Adatok mentése

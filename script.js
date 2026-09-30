@@ -51,6 +51,7 @@ let scannerRunning = false;
 let editingChildId = null;
 
 let scanLocked = false;
+let countdownHasExpired = false;
 
 // A köridőmérés a visszaszámláló indításával együtt indul.
 let lapClockElapsedMs = 0;
@@ -143,7 +144,7 @@ function getNextCode() {
 
     for (
         let number = 1;
-        number <= 99;
+        number <= 999;
         number++
     ) {
 
@@ -982,7 +983,7 @@ function qrCodeScanned(
         decodedText
     );
 
-    if (scanLocked) {
+    if (scanLocked || countdownHasExpired) {
         return;
     }
 
@@ -1362,6 +1363,18 @@ const importFile =
 const deleteAllButton =
     document.getElementById("deleteAllButton");
 
+// Kézi tablet nézet: eltároljuk az eszközön, hogy a következő megnyitáskor is megmaradjon.
+const tabletModeToggle = document.getElementById("tabletModeToggle");
+const tabletModeStorageKey = "qrKorTabletMode";
+const savedTabletMode = localStorage.getItem(tabletModeStorageKey) === "true";
+document.body.classList.toggle("manual-tablet-layout", savedTabletMode);
+tabletModeToggle.checked = savedTabletMode;
+tabletModeToggle.addEventListener("change", () => {
+    const enabled = tabletModeToggle.checked;
+    document.body.classList.toggle("manual-tablet-layout", enabled);
+    localStorage.setItem(tabletModeStorageKey, String(enabled));
+});
+
 
 // ==============================
 // BEÁLLÍTÁSOK MEGNYITÁSA
@@ -1665,192 +1678,94 @@ importFile.addEventListener(
 
 
 // ==============================
-// ÖSSZES QR-KÓD NYOMTATÁSA
-// NÉV NÉLKÜL
+// ELŐRE GENERÁLT QR-KÓDOK – ELŐNÉZET ÉS PDF
 // ==============================
 
-printAllQRButton.addEventListener(
-    "click",
-    () => {
+printAllQRButton.addEventListener("click", () => {
+    const countInput = document.getElementById("qrBatchCount");
+    const requestedCount = Number.parseInt(countInput?.value, 10);
 
-        if (children.length === 0) {
+    if (!Number.isInteger(requestedCount) || requestedCount < 1 || requestedCount > 500) {
+        alert("1 és 500 közötti darabszámot adj meg.");
+        return;
+    }
 
-            alert(
-                "Nincs egyetlen gyerek sem."
-            );
+    // Ugyanazt a szabad kódsorrendet használjuk, mint az új gyerekek felvétele.
+    const usedCodes = new Set(children.map(child => child.id));
+    const codes = [];
+    for (let number = 1; number <= 999 && codes.length < requestedCount; number++) {
+        const code = `KOD-${String(number).padStart(2, "0")}`;
+        if (!usedCodes.has(code)) codes.push(code);
+    }
 
-            return;
-        }
+    if (codes.length !== requestedCount) {
+        alert("Nem sikerült a kért mennyiségű szabad kódot létrehozni.");
+        return;
+    }
 
+    const previewWindow = window.open("", "_blank");
+    if (!previewWindow) {
+        alert("A böngésző blokkolta az előnézeti ablakot. Engedélyezd a felugró ablakokat ehhez az oldalhoz.");
+        return;
+    }
 
-        const printWindow =
-            window.open(
-                "",
-                "_blank"
-            );
-
-
-        if (!printWindow) {
-
-            alert(
-                "A böngésző blokkolta a felugró ablakot."
-            );
-
-            return;
-        }
-
-
-        printWindow.document.write(`
-
-<!DOCTYPE html>
-
+    const safeCodes = JSON.stringify(codes).replace(/</g, "\\u003c");
+    previewWindow.document.open();
+    previewWindow.document.write(`<!DOCTYPE html>
 <html lang="hu">
-
 <head>
-
 <meta charset="UTF-8">
-
-<title>QR-kódok</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QR-kódok előnézete</title>
 <style>
-
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-}
-
-.qr-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 20px;
-}
-
-.qr-card {
-    border: 2px solid #222;
-
-    border-radius: 12px;
-
-    padding: 15px;
-
-    text-align: center;
-
-    page-break-inside: avoid;
-}
-
-.qr-code {
-    display: flex;
-
-    justify-content: center;
-}
-
-.code-label {
-    margin-top: 10px;
-
-    font-size: 22px;
-
-    font-weight: 900;
-
-    letter-spacing: 2px;
-}
-
-@media print {
-
-    body {
-        margin: 10px;
-    }
-
-    .qr-grid {
-        gap: 12px;
-    }
-}
-
+*{box-sizing:border-box}body{margin:0;padding:20px;background:#eef2f7;color:#17314c;font-family:Arial,sans-serif}
+.toolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fff;padding:14px 18px;border-radius:12px;box-shadow:0 3px 14px #0001;margin:0 auto 20px;max-width:1100px}
+.toolbar button{border:0;border-radius:8px;padding:12px 18px;background:#147d43;color:#fff;font-weight:700;cursor:pointer}.toolbar .secondary{background:#245f91}.toolbar p{margin:0}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:1100px;margin:auto}
+.card{background:white;border:1px solid #d7e0ea;border-radius:10px;padding:14px;text-align:center;break-inside:avoid;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px}
+.qr{width:160px;height:160px;display:flex;align-items:center;justify-content:center}.qr canvas,.qr img{width:160px!important;height:160px!important}.code{font-size:19px;font-weight:800;letter-spacing:1px;margin-top:8px}
+@media(max-width:650px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.qr,.qr canvas,.qr img{width:125px!important;height:125px!important}.card{min-height:185px}}
+@media print{body{background:#fff;padding:0}.toolbar{display:none}.grid{gap:7mm;grid-template-columns:repeat(3,1fr)}.card{border:1px solid #bbb;border-radius:0;min-height:62mm;padding:3mm;break-inside:avoid}.qr,.qr canvas,.qr img{width:38mm!important;height:38mm!important}.code{font-size:14pt;margin-top:2mm}}
 </style>
-
-</head>
-
-<body>
-
-<div class="qr-grid">
-
-        `);
-
-
-        children.forEach(
-            child => {
-
-                printWindow.document.write(`
-
-<div class="qr-card">
-
-    <div
-        class="qr-code"
-        id="qr-${child.id}"
-    ></div>
-
-    <div class="code-label">
-        ${child.id}
-    </div>
-
-</div>
-
-                `);
-            }
-        );
-
-
-        printWindow.document.write(`
-
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
-<\/script>
-
+</head><body>
+<div class="toolbar"><p><strong>${requestedCount} QR-kód</strong> előnézete · A kódok név nélkül készülnek.</p><div><button id="downloadPdf">PDF letöltése</button> <button class="secondary" onclick="window.print()">Nyomtatás</button></div></div>
+<div class="grid" id="qrGrid"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>
 <script>
-
-const children =
-    ${JSON.stringify(children)};
-
-children.forEach(child => {
-
-    new QRCode(
-        document.getElementById(
-            "qr-" + child.id
-        ),
-        {
-            text: child.id,
-
-            width: 180,
-
-            height: 180,
-
-            correctLevel:
-                QRCode.CorrectLevel.H
-        }
-    );
-
+const codes = ${safeCodes};
+const grid = document.getElementById('qrGrid');
+codes.forEach(code => {
+ const card=document.createElement('div'); card.className='card';
+ const qr=document.createElement('div'); qr.className='qr';
+ const label=document.createElement('div'); label.className='code'; label.textContent=code;
+ card.append(qr,label); grid.appendChild(card);
+ new QRCode(qr,{text:code,width:320,height:320,correctLevel:QRCode.CorrectLevel.H});
 });
-
-setTimeout(() => {
-
-    window.print();
-
-}, 700);
-
+document.getElementById('downloadPdf').addEventListener('click', async () => {
+ const button=document.getElementById('downloadPdf'); button.disabled=true; button.textContent='PDF készül…';
+ try {
+  if(!window.jspdf?.jsPDF) throw new Error('A PDF-készítő könyvtár nem töltődött be. Ellenőrizd az internetkapcsolatot.');
+  const {jsPDF}=window.jspdf; const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const margin=10, cols=3, rows=4, gapX=5, gapY=4, cellW=(210-2*margin-2*gapX)/cols, cellH=(297-2*margin-3*gapY)/rows, qrSize=40;
+  for(let i=0;i<codes.length;i++){
+   if(i>0 && i%(cols*rows)===0) pdf.addPage();
+   const col=i%cols, row=Math.floor((i%(cols*rows))/cols), x=margin+col*(cellW+gapX), y=margin+row*(cellH+gapY);
+   const canvas=grid.children[i].querySelector('canvas');
+   if(!canvas) throw new Error('Nem sikerült elkészíteni az egyik QR-kód képét.');
+   const qx=x+(cellW-qrSize)/2, qy=y+4;
+   pdf.addImage(canvas.toDataURL('image/png'),'PNG',qx,qy,qrSize,qrSize);
+   pdf.setFont('helvetica','bold'); pdf.setFontSize(13); pdf.text(codes[i],x+cellW/2,qy+qrSize+7,{align:'center'});
+   pdf.setDrawColor(205,215,225); pdf.roundedRect(x,y,cellW,cellH,2,2,'S');
+  }
+  pdf.save('QR-kodok-'+codes.length+'-db.pdf');
+ } catch(error) { alert(error.message || 'A PDF készítése nem sikerült.'); }
+ finally { button.disabled=false; button.textContent='PDF letöltése'; }
+});
 <\/script>
-
-</body>
-
-</html>
-
-        `);
-
-
-        printWindow.document.close();
-    }
-);
+</body></html>`);
+    previewWindow.document.close();
+});
 
 
 // ==============================
@@ -1893,11 +1808,15 @@ renderChildren();
         render();
         if (remainingSeconds <= 0) {
             stopInterval();
+            countdownHasExpired = true;
+            pauseLapClock();
+            // Lejáratkor ténylegesen állítsuk le a kamerát is.
+            // A beolvasás védelme a stop folyamat alatt is aktív.
+            void stopScanner();
             startButton.disabled = false;
             pauseButton.disabled = true;
             minutesInput.disabled = false;
             status.textContent = "⏰ Lejárt az idő!";
-            pauseLapClock();
         }
     };
     startButton.addEventListener("click", () => {
@@ -1907,6 +1826,7 @@ renderChildren();
             minutesInput.value = mins;
             remainingSeconds = mins * 60;
         }
+        countdownHasExpired = false;
         endAt = Date.now() + remainingSeconds * 1000;
         startLapClock();
         intervalId = setInterval(tick, 200);
