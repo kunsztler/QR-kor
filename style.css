@@ -2071,3 +2071,47 @@ body.manual-tablet-layout .child-id { font-size: 9px !important; }
 body.manual-tablet-layout .child-laps { font-size: 13px !important; }
 body.manual-tablet-layout .child-actions { gap: 2px !important; }
 body.manual-tablet-layout .child-actions button { height: 19px !important; min-height: 19px !important; font-size: 9px !important; padding: 0 1px !important; }
+
+/* Javítás: a kézi tablet nézet ne szűkítse a teljes oldal szélességét. */
+body.manual-tablet-layout main {
+    width: min(1500px, 96%) !important;
+    max-width: none !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* A beállítások panel mindig a képernyőn belül maradjon, saját görgetéssel. */
+#settingsModal {
+    box-sizing: border-box;
+    padding: 12px !important;
+    overflow: hidden;
+}
+#settingsModal .settings-modal {
+    box-sizing: border-box;
+    width: min(550px, 100%) !important;
+    max-width: 550px !important;
+    max-height: calc(100vh - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    padding: 62px 24px 24px !important;
+}
+#settingsModal .settings-modal > .close-button {
+    position: sticky !important;
+    top: 0 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    margin: -48px 0 3px auto !important;
+    z-index: 5 !important;
+    flex: 0 0 45px;
+}
+#settingsModal .settings-modal h2 {
+    margin-top: 0 !important;
+}
+@media (max-width: 600px) {
+    #settingsModal .settings-modal {
+        padding: 60px 16px 18px !important;
+        border-radius: 18px !important;
+    }
+}
