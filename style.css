@@ -2072,12 +2072,25 @@ body.manual-tablet-layout .child-laps { font-size: 13px !important; }
 body.manual-tablet-layout .child-actions { gap: 2px !important; }
 body.manual-tablet-layout .child-actions button { height: 19px !important; min-height: 19px !important; font-size: 9px !important; padding: 0 1px !important; }
 
-/* Javítás: a kézi tablet nézet ne szűkítse a teljes oldal szélességét. */
+/* Kézi tablet nézet – 7 oszlop, az alapnézethez igazodó szélességgel. */
 body.manual-tablet-layout main {
     width: min(1500px, 96%) !important;
     max-width: none !important;
     margin-left: auto !important;
     margin-right: auto !important;
+}
+body.manual-tablet-layout .children-card {
+    width: 100% !important;
+}
+body.manual-tablet-layout #childrenList {
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    max-height: 300px !important;
+    padding: 8px !important;
+}
+body.manual-tablet-layout #childrenList .child {
+    min-height: 76px !important;
+    padding: 5px 6px !important;
 }
 
 /* A beállítások panel mindig a képernyőn belül maradjon, saját görgetéssel. */
