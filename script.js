@@ -52,6 +52,10 @@ let editingChildId = null;
 
 let scanLocked = false;
 let countdownHasExpired = false;
+let lastScannedCode = null;
+let scanNoDetectionFrames = 0;
+const scanDelayStorageKey = "qrKorScanDelaySeconds";
+const lapTimingModeStorageKey = "qrKorLapTimingMode";
 
 // A köridőmérés a visszaszámláló indításával együtt indul.
 let lapClockElapsedMs = 0;
@@ -396,17 +400,21 @@ function showChildLapTimes(id) {
     if (!child) return;
     const list = document.getElementById("lapTimesList");
     const title = document.getElementById("lapTimesTitle");
-    title.textContent = `⏱️ ${child.name} – köridők`;
+    title.textContent = `⏱️ ${child.name} – idő / köridő`;
     const times = Array.isArray(child.lapTimes) ? child.lapTimes : [];
     if (!times.length) {
         list.innerHTML = '<p class="lap-times-empty">Ehhez a gyerekhez még nincs rögzített QR-beolvasásos köridő.</p>';
     } else {
-        list.innerHTML = times.map((entry, index) => `
-            <div class="lap-time-row">
-                <span>${index + 1}. kör</span>
-                <strong>${formatLapDuration(Number(entry.durationMs) || 0)}</strong>
-            </div>
-        `).join("");
+        list.innerHTML = times.map((entry, index) => {
+            const elapsed = Number(entry.elapsedMs ?? entry.durationMs) || 0;
+            const duration = Number(entry.durationMs ?? elapsed) || 0;
+            return `
+                <div class="lap-time-row">
+                    <span>${index + 1}. kör</span>
+                    <strong>${formatLapDuration(elapsed)} <span class="lap-duration-secondary">(${formatLapDuration(duration)})</span></strong>
+                </div>
+            `;
+        }).join("");
     }
     document.getElementById("lapTimesModal").classList.add("active");
 }
@@ -654,7 +662,7 @@ function addLap(id, recordTime = false) {
         const duration = child.lastLapElapsedMs === null || typeof child.lastLapElapsedMs !== "number"
             ? elapsed
             : Math.max(0, elapsed - child.lastLapElapsedMs);
-        child.lapTimes.push({ durationMs: duration, recordedAt: new Date().toISOString() });
+        child.lapTimes.push({ elapsedMs: elapsed, durationMs: duration, recordedAt: new Date().toISOString() });
         child.lastLapElapsedMs = elapsed;
     }
 
@@ -983,11 +991,16 @@ function qrCodeScanned(
         decodedText
     );
 
-    if (scanLocked || countdownHasExpired) {
+    if (countdownHasExpired) {
         return;
     }
 
     const code = normalizeQrCode(decodedText);
+
+    if (scanLocked || code === lastScannedCode) {
+        scanNoDetectionFrames = 0;
+        return;
+    }
     const child = findChild(code);
 
     if (!child) {
@@ -1010,7 +1023,7 @@ function qrCodeScanned(
         "success"
     );
 
-    lockScannerBriefly();
+    lockScannerBriefly(code);
 }
 
 
@@ -1058,16 +1071,32 @@ function highlightChild(id) {
 // DUPLA BEOLVASÁS VÉDELEM
 // ==============================
 
-function lockScannerBriefly() {
+function getScanDelayMs() {
+    const value = Number.parseFloat(localStorage.getItem(scanDelayStorageKey) || "1.8");
+    return Math.max(0, Math.min(10000, Number.isFinite(value) ? value * 1000 : 1800));
+}
 
+function lockScannerBriefly(code = null) {
     scanLocked = true;
+    if (code !== null) {
+        lastScannedCode = code;
+        scanNoDetectionFrames = 0;
+    }
 
-
+    const delay = getScanDelayMs();
     setTimeout(() => {
-
         scanLocked = false;
+        // Az azonos QR-kód továbbra is tiltott marad, amíg ki nem kerül a kameraképből.
+    }, delay);
+}
 
-    }, 1800);
+function noteScannerFrameWithoutQr() {
+    if (lastScannedCode === null) return;
+    scanNoDetectionFrames += 1;
+    if (!scanLocked && scanNoDetectionFrames >= 5) {
+        lastScannedCode = null;
+        scanNoDetectionFrames = 0;
+    }
 }
 
 
@@ -1146,7 +1175,8 @@ async function startScanner() {
             },
 
             () => {
-                // Sikertelen képkocka – folytatjuk a keresést.
+                // Ha a QR eltűnik a kameraképből, később ugyanaz a kód újra olvasható.
+                noteScannerFrameWithoutQr();
             }
         );
 
@@ -1174,6 +1204,11 @@ async function startScanner() {
         showMessage(
             "📷 Beolvasás aktív! Mutasd a QR-kódokat egymás után."
         );
+
+        // A mérés és a visszaszámláló a sikeres kamerakezdéssel indul.
+        if (typeof window.startActivityTimer === "function") {
+            window.startActivityTimer();
+        }
     }
 
 
@@ -1252,11 +1287,18 @@ async function stopScanner() {
     }
 
 
+    // A kamera leállítása egyben szünetelteti az időmérést és a visszaszámlálót.
+    if (!countdownHasExpired && typeof window.pauseActivityTimer === "function") {
+        window.pauseActivityTimer();
+    }
+
     scanner = null;
 
     scannerRunning = false;
 
     scanLocked = false;
+    lastScannedCode = null;
+    scanNoDetectionFrames = 0;
 
 
     startScannerButton.textContent =
@@ -1365,6 +1407,8 @@ const deleteAllButton =
 
 // Kézi tablet nézet: eltároljuk az eszközön, hogy a következő megnyitáskor is megmaradjon.
 const tabletModeToggle = document.getElementById("tabletModeToggle");
+const scanDelayInput = document.getElementById("scanDelay");
+
 const tabletModeStorageKey = "qrKorTabletMode";
 const savedTabletMode = localStorage.getItem(tabletModeStorageKey) === "true";
 document.body.classList.toggle("manual-tablet-layout", savedTabletMode);
@@ -1373,6 +1417,15 @@ tabletModeToggle.addEventListener("change", () => {
     const enabled = tabletModeToggle.checked;
     document.body.classList.toggle("manual-tablet-layout", enabled);
     localStorage.setItem(tabletModeStorageKey, String(enabled));
+});
+
+const savedScanDelay = Number.parseFloat(localStorage.getItem(scanDelayStorageKey) || "1.8");
+scanDelayInput.value = Number.isFinite(savedScanDelay) ? Math.max(0, Math.min(10, savedScanDelay)) : 1.8;
+scanDelayInput.addEventListener("change", () => {
+    const value = Number.parseFloat(scanDelayInput.value);
+    const safe = Math.max(0, Math.min(10, Number.isFinite(value) ? value : 1.8));
+    scanDelayInput.value = safe;
+    localStorage.setItem(scanDelayStorageKey, String(safe));
 });
 
 
@@ -1780,13 +1833,26 @@ renderChildren();
 (() => {
     const display = document.getElementById("countdownDisplay");
     const minutesInput = document.getElementById("countdownMinutes");
+    const secondsInput = document.getElementById("countdownSeconds");
     const startButton = document.getElementById("countdownStart");
     const pauseButton = document.getElementById("countdownPause");
     const resetButton = document.getElementById("countdownReset");
     const status = document.getElementById("countdownStatus");
-    if (!display || !minutesInput || !startButton || !pauseButton || !resetButton || !status) return;
+    if (!display || !minutesInput || !secondsInput || !startButton || !pauseButton || !resetButton || !status) return;
 
-    let remainingSeconds = 600;
+    const readDurationSeconds = () => {
+        const mins = Math.min(180, Math.max(0, Number.parseInt(minutesInput.value, 10) || 0));
+        const secs = Math.min(59, Math.max(0, Number.parseInt(secondsInput.value, 10) || 0));
+        minutesInput.value = mins;
+        secondsInput.value = secs;
+        return mins * 60 + secs;
+    };
+
+    let remainingSeconds = readDurationSeconds() || 600;
+    if (remainingSeconds === 600 && Number(minutesInput.value) === 0 && Number(secondsInput.value) === 0) {
+        minutesInput.value = 10;
+        secondsInput.value = 0;
+    }
     let intervalId = null;
     let endAt = 0;
 
@@ -1804,39 +1870,43 @@ renderChildren();
         intervalId = null;
     };
     const tick = () => {
-        remainingSeconds = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
+        remainingSeconds = Math.max(0, (endAt - Date.now()) / 1000);
         render();
         if (remainingSeconds <= 0) {
             stopInterval();
             countdownHasExpired = true;
             pauseLapClock();
-            // Lejáratkor ténylegesen állítsuk le a kamerát is.
-            // A beolvasás védelme a stop folyamat alatt is aktív.
             void stopScanner();
             startButton.disabled = false;
             pauseButton.disabled = true;
             minutesInput.disabled = false;
+            secondsInput.disabled = false;
             status.textContent = "⏰ Lejárt az idő!";
         }
     };
-    startButton.addEventListener("click", () => {
+    const startActivityTimer = () => {
         if (intervalId !== null) return;
         if (remainingSeconds <= 0) {
-            const mins = Math.min(180, Math.max(1, Number.parseInt(minutesInput.value, 10) || 10));
-            minutesInput.value = mins;
-            remainingSeconds = mins * 60;
+            remainingSeconds = readDurationSeconds();
+        }
+        if (remainingSeconds <= 0) {
+            remainingSeconds = 60;
+            minutesInput.value = 1;
+            secondsInput.value = 0;
         }
         countdownHasExpired = false;
         endAt = Date.now() + remainingSeconds * 1000;
         startLapClock();
-        intervalId = setInterval(tick, 200);
+        intervalId = setInterval(tick, 100);
         startButton.disabled = true;
         pauseButton.disabled = false;
         minutesInput.disabled = true;
+        secondsInput.disabled = true;
         status.textContent = "Visszaszámlálás folyamatban…";
         tick();
-    });
-    pauseButton.addEventListener("click", () => {
+    };
+
+    const pauseActivityTimer = () => {
         if (intervalId === null) return;
         tick();
         stopInterval();
@@ -1844,28 +1914,51 @@ renderChildren();
         startButton.disabled = false;
         pauseButton.disabled = true;
         minutesInput.disabled = false;
+        secondsInput.disabled = false;
         status.textContent = "Szüneteltetve. A folytatáshoz nyomd meg az Indítást.";
+    };
+
+    // A kamera és az időmérés mostantól együtt működik.
+    window.startActivityTimer = startActivityTimer;
+    window.pauseActivityTimer = pauseActivityTimer;
+
+    // Az Indítás gomb is a kamerát indítja: sikeres kamerakezdés után indul az idő.
+    startButton.addEventListener("click", () => {
+        if (typeof startScanner === "function") startScanner();
+    });
+
+    // A Szünet gomb a kamerát is leállítja, így az időmérés is szünetel.
+    pauseButton.addEventListener("click", () => {
+        if (scannerRunning) {
+            void stopScanner();
+        } else {
+            pauseActivityTimer();
+        }
     });
     resetButton.addEventListener("click", () => {
         stopInterval();
         countdownHasExpired = false;
         resetLapClock();
-        const mins = Math.min(180, Math.max(1, Number.parseInt(minutesInput.value, 10) || 10));
-        minutesInput.value = mins;
-        remainingSeconds = mins * 60;
+        remainingSeconds = readDurationSeconds();
+        if (remainingSeconds <= 0) {
+            remainingSeconds = 60;
+            minutesInput.value = 1;
+            secondsInput.value = 0;
+        }
         startButton.disabled = false;
         pauseButton.disabled = true;
         minutesInput.disabled = false;
+        secondsInput.disabled = false;
         status.textContent = "Visszaszámláló visszaállítva.";
         render();
     });
-    minutesInput.addEventListener("change", () => {
+    const timeInputChanged = () => {
         if (intervalId !== null) return;
-        const mins = Math.min(180, Math.max(1, Number.parseInt(minutesInput.value, 10) || 10));
-        minutesInput.value = mins;
-        remainingSeconds = mins * 60;
+        remainingSeconds = readDurationSeconds();
         status.textContent = "Készen áll az indításra.";
         render();
-    });
+    };
+    minutesInput.addEventListener("change", timeInputChanged);
+    secondsInput.addEventListener("change", timeInputChanged);
     render();
 })();
