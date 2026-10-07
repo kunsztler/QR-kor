@@ -1778,7 +1778,7 @@ printAllQRButton.addEventListener("click", () => {
 .card{background:white;border:1px solid #d7e0ea;border-radius:10px;padding:14px;text-align:center;break-inside:avoid;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px}
 .qr{width:160px;height:160px;display:flex;align-items:center;justify-content:center}.qr canvas,.qr img{width:160px!important;height:160px!important}.code{font-size:19px;font-weight:800;letter-spacing:1px;margin-top:8px}
 @media(max-width:650px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.qr,.qr canvas,.qr img{width:125px!important;height:125px!important}.card{min-height:185px}}
-@media print{body{background:#fff;padding:0}.toolbar{display:none}.grid{gap:7mm;grid-template-columns:repeat(3,1fr)}.card{border:1px solid #bbb;border-radius:0;min-height:62mm;padding:3mm;break-inside:avoid}.qr,.qr canvas,.qr img{width:38mm!important;height:38mm!important}.code{font-size:14pt;margin-top:2mm}}
+@page{size:A4 landscape;margin:8mm}@media print{body{background:#fff;padding:0}.toolbar{display:none}.grid{gap:5mm;grid-template-columns:repeat(4,1fr);max-width:none}.card{border:1px solid #bbb;border-radius:0;min-height:58mm;padding:2mm;break-inside:avoid}.qr,.qr canvas,.qr img{width:48mm!important;height:48mm!important}.code{font-size:13pt;margin-top:2mm}}
 </style>
 </head><body>
 <div class="toolbar"><p><strong>${requestedCount} QR-kód</strong> előnézete · A kódok név nélkül készülnek.</p><div><button id="downloadPdf">PDF letöltése</button> <button class="secondary" onclick="window.print()">Nyomtatás</button></div></div>
@@ -1799,16 +1799,16 @@ document.getElementById('downloadPdf').addEventListener('click', async () => {
  const button=document.getElementById('downloadPdf'); button.disabled=true; button.textContent='PDF készül…';
  try {
   if(!window.jspdf?.jsPDF) throw new Error('A PDF-készítő könyvtár nem töltődött be. Ellenőrizd az internetkapcsolatot.');
-  const {jsPDF}=window.jspdf; const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const margin=10, cols=3, rows=4, gapX=5, gapY=4, cellW=(210-2*margin-2*gapX)/cols, cellH=(297-2*margin-3*gapY)/rows, qrSize=40;
+  const {jsPDF}=window.jspdf; const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const margin=8, cols=4, rows=3, gapX=5, gapY=4, cellW=(297-2*margin-3*gapX)/cols, cellH=(210-2*margin-2*gapY)/rows, qrSize=48;
   for(let i=0;i<codes.length;i++){
    if(i>0 && i%(cols*rows)===0) pdf.addPage();
    const col=i%cols, row=Math.floor((i%(cols*rows))/cols), x=margin+col*(cellW+gapX), y=margin+row*(cellH+gapY);
    const canvas=grid.children[i].querySelector('canvas');
    if(!canvas) throw new Error('Nem sikerült elkészíteni az egyik QR-kód képét.');
-   const qx=x+(cellW-qrSize)/2, qy=y+4;
+   const qx=x+(cellW-qrSize)/2, qy=y+3;
    pdf.addImage(canvas.toDataURL('image/png'),'PNG',qx,qy,qrSize,qrSize);
-   pdf.setFont('helvetica','bold'); pdf.setFontSize(13); pdf.text(codes[i],x+cellW/2,qy+qrSize+7,{align:'center'});
+   pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.text(codes[i],x+cellW/2,qy+qrSize+7,{align:'center'});
    pdf.setDrawColor(205,215,225); pdf.roundedRect(x,y,cellW,cellH,2,2,'S');
   }
   pdf.save('QR-kodok-'+codes.length+'-db.pdf');
