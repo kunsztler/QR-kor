@@ -1743,16 +1743,15 @@ printAllQRButton.addEventListener("click", () => {
         return;
     }
 
-    // Ugyanazt a szabad kódsorrendet használjuk, mint az új gyerekek felvétele.
-    const usedCodes = new Set(children.map(child => child.id));
+    // A nyomtatás mindig az első QR-kódtól induljon.
+    // A kódokat előre ki lehet nyomtatni, és később hozzárendelni a gyerekekhez.
     const codes = [];
     for (let number = 1; number <= 999 && codes.length < requestedCount; number++) {
-        const code = `KOD-${String(number).padStart(2, "0")}`;
-        if (!usedCodes.has(code)) codes.push(code);
+        codes.push(`KOD-${String(number).padStart(2, "0")}`);
     }
 
     if (codes.length !== requestedCount) {
-        alert("Nem sikerült a kért mennyiségű szabad kódot létrehozni.");
+        alert("Nem sikerült a kért mennyiségű QR-kódot létrehozni.");
         return;
     }
 
