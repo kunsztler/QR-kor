@@ -1935,8 +1935,17 @@ renderChildren();
         }
     });
     resetButton.addEventListener("click", () => {
+        // Újrakezdéskor a kamera is álljon le, és minden köreredmény nullázódjon.
+        if (scannerRunning) void stopScanner();
         stopInterval();
         countdownHasExpired = false;
+        children.forEach(child => {
+            child.laps = 0;
+            child.lapTimes = [];
+            child.lastLapElapsedMs = null;
+        });
+        saveChildren();
+        renderChildren();
         resetLapClock();
         remainingSeconds = readDurationSeconds();
         if (remainingSeconds <= 0) {
@@ -1948,7 +1957,7 @@ renderChildren();
         pauseButton.disabled = true;
         minutesInput.disabled = false;
         secondsInput.disabled = false;
-        status.textContent = "Visszaszámláló visszaállítva.";
+        status.textContent = "Újrakezdve: az idő és minden kör nullázva.";
         render();
     });
     const timeInputChanged = () => {
