@@ -997,7 +997,9 @@ function qrCodeScanned(
 
     const code = normalizeQrCode(decodedText);
 
-    if (scanLocked || code === lastScannedCode) {
+    // Ugyanazt a kódot ne fogadjuk el újra, amíg a kamera látja.
+    // Másik gyerek kódját viszont ne tartsa fel az előző kód késleltetése.
+    if (code === lastScannedCode || (scanLocked && lastScannedCode === null)) {
         scanNoDetectionFrames = 0;
         return;
     }
@@ -1165,7 +1167,8 @@ async function startScanner() {
             },
 
             {
-                fps: 10
+                fps: 20
+                // Gyakoribb QR-felismerés a gyorsabb beolvasásért.
                 // NINCS qrbox és NINCS aspectRatio:
                 // a teljes kameraképet vizsgáljuk.
             },

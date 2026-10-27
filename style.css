@@ -2191,3 +2191,32 @@ body.manual-tablet-layout #childrenList .child {
     font-weight: 700;
     opacity: 0.78;
 }
+
+
+/* ===== QR-kód célkeret: segít a gyerekeknek a megfelelő helyre igazítani ===== */
+#reader {
+  position: relative !important;
+}
+#reader::after {
+  content: "";
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(58%, 230px);
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  border-radius: 10px;
+  pointer-events: none;
+  background:
+    linear-gradient(#ff3b30, #ff3b30) left top / 34px 4px no-repeat,
+    linear-gradient(#ff3b30, #ff3b30) left top / 4px 34px no-repeat,
+    linear-gradient(#ff3b30, #ff3b30) right top / 34px 4px no-repeat,
+    linear-gradient(#ff3b30, #ff3b30) right top / 4px 34px no-repeat,
+    linear-gradient(#ff3b30, #ff3b30) left bottom / 34px 4px no-repeat,
+    linear-gradient(#ff3b30, #ff3b30) left bottom / 4px 34px no-repeat,
+    linear-gradient(#ff3b30, #ff3b30) right bottom / 34px 4px no-repeat,
+    linear-gradient(#ff3b30, #ff3b30) right bottom / 4px 34px no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.35));
+}
